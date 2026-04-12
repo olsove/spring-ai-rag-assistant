@@ -19,7 +19,7 @@ Spring AI RAG system for technical documentation with ingestion, vector search, 
 
 ## Features
 - Document ingestion (Markdown, text, extendable to PDF/HTML)
-- Chunking and embedding pipeline
+- Local chunking and embedding pipeline (using ONNX)
 - Vector similarity search
 - Context-aware prompt construction
 - Grounded responses with citations
@@ -45,6 +45,7 @@ src/main/java/no/olsove/learn/ai/rag/spring_ai_rag_assistant
 - Explicit configuration → no hidden magic
 - Testability first → especially retrieval logic
 - DDD and clean code → For readability and maintainability 
+- Privacy & Cost Efficiency → Use local embeddings for data ingestion to save tokens and improve security.
 
 ## Testing Philosophy
 - **Focused Tests**: Tests must be concise and target specific logic (e.g. chunking strategy, retrieval thresholds).

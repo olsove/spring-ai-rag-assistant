@@ -5,8 +5,15 @@ The Spring AI RAG Assistant is a technical documentation assistant that uses Ret
 
 ## Prerequisites
 - **Java 21** or later.
-- **OpenAI API Key**: Set the `OPENAI_API_KEY` environment variable.
+- **OpenAI API Key**: Set the `OPENAI_API_KEY` environment variable (required for Chat, but not for Embeddings).
 - **Gradle**: Use the provided `./gradlew` wrapper.
+
+## Local Embeddings
+This application uses **local ONNX embeddings** (all-MiniLM-L6-v2) by default. This means:
+- No tokens are used for document ingestion.
+- Document chunks are converted to vectors locally on your machine.
+- Privacy is improved as your document content is not sent to OpenAI for embedding.
+- Only the final chat query and the relevant context are sent to OpenAI for answer generation.
 
 ## Running the Application
 Start the application using:

@@ -27,6 +27,8 @@ The API will be available at `http://localhost:8080/api/chat`.
 ### 1. Document Ingestion
 Upload text or Markdown files to the vector store. The application chunks and embeds the content for later retrieval.
 
+For detailed information on the ingestion pipeline and configuration, see [docs/INGESTION.md](INGESTION.md).
+
 **Endpoint:** `POST /api/chat/ingest`
 
 **Example using `curl`:**

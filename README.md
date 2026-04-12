@@ -63,3 +63,14 @@ This avoids hallucinations and enables **traceable answers**.
         ┌────────────────────┐
         │   REST / Streaming │
         └────────────────────┘
+```
+---
+
+## 📚 Documentation
+
+For more in-depth information, please refer to the following guides in the `docs` folder:
+
+- **[USAGE.md](docs/USAGE.md)**: An overview of the application's features, prerequisites, and how to run it. Includes `curl` examples for chat and ingestion.
+- **[INGESTION.md](docs/INGESTION.md)**: Detailed explanation of the document ingestion pipeline, local embedding model (ONNX) configuration, and chunking parameters.
+
+---

@@ -6,6 +6,7 @@ import org.springframework.ai.document.Document;
 import org.springframework.ai.reader.TextReader;
 import org.springframework.ai.transformer.splitter.TokenTextSplitter;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +19,19 @@ public class IngestionService {
 
     private final VectorStore vectorStore;
 
+    @Value("${rag.ingestion.chunk-size:1000}")
+    private int chunkSize;
+
+    @Value("${rag.ingestion.chunk-overlap:100}")
+    private int chunkOverlap;
+
     public void ingest(Resource resource) {
-        log.info("Ingesting resource: {}", resource.getFilename());
+        log.info("Ingesting resource: {} with chunk-size: {} and chunk-overlap: {}", 
+                resource.getFilename(), chunkSize, chunkOverlap);
         TextReader textReader = new TextReader(resource);
         List<Document> documents = textReader.get();
 
-        TokenTextSplitter splitter = new TokenTextSplitter();
+        TokenTextSplitter splitter = new TokenTextSplitter(chunkSize, chunkOverlap, 5, 10000, true);
         List<Document> splitDocuments = splitter.apply(documents);
 
         log.info("Adding {} chunks to vector store", splitDocuments.size());

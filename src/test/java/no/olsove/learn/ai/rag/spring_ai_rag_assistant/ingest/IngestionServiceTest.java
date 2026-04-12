@@ -22,6 +22,10 @@ class IngestionServiceTest {
         VectorStore vectorStore = mock(VectorStore.class);
         IngestionService ingestionService = new IngestionService(vectorStore);
         
+        // Manual injection of @Value fields for unit test
+        org.springframework.test.util.ReflectionTestUtils.setField(ingestionService, "chunkSize", 100);
+        org.springframework.test.util.ReflectionTestUtils.setField(ingestionService, "chunkOverlap", 10);
+        
         String content = "This is a test document content that should be split into chunks.";
         ByteArrayResource resource = new ByteArrayResource(content.getBytes(StandardCharsets.UTF_8)) {
             @Override

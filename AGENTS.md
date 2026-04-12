@@ -44,6 +44,14 @@ src/main/java/no/olsove/learn/ai/rag/spring_ai_rag_assistant
 - Deterministic prompts → versionable and testable
 - Explicit configuration → no hidden magic
 - Testability first → especially retrieval logic
+- DDD and clean code → For readability and maintainability 
+
+## Testing Philosophy
+- **Focused Tests**: Tests must be concise and target specific logic (e.g. chunking strategy, retrieval thresholds).
+- **Executable Documentation**: Tests serve as the primary source of truth for developer intent and implementation details.
+- **Integration Testing**: Use `@SpringBootTest` and Spring AI's test support to verify the end-to-end RAG flow.
+- **Mocking Strategy**: Mock LLM calls in unit tests to ensure deterministic results and avoid API costs during CI.
+- **Grounding Verification**: Tests should explicitly verify that citations are present and grounded in the provided context.
 
 ## Commands
 - `./gradlew build`

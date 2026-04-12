@@ -1,5 +1,7 @@
 # Spring AI RAG Assistant
 
+> **Note**: This repository is **UNDER CONSTRUCTION** 🏗️
+
 A production-style **Retrieval-Augmented Generation (RAG)** system built with **Spring Boot and Spring AI**, designed to answer questions over technical documentation with grounded, traceable responses.
 
 ---

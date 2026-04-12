@@ -1,3 +1,22 @@
 spring:
   application:
     name: spring-ai-rag-assistant
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      chat:
+        options:
+          model: gpt-4o
+          temperature: 0.7
+    vector:
+      store:
+        simple:
+          save-file: vector-store.json
+
+rag:
+  ingestion:
+    chunk-size: 1000
+    chunk-overlap: 100
+  retrieval:
+    top-k: 3
+    similarity-threshold: 0.5

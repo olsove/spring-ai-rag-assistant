@@ -17,13 +17,19 @@ Spring AI RAG system for technical documentation with ingestion, vector search, 
 - ingest → retrieval → chat → web
 - Strict separation of concerns
 
+## Architectural Decision Records (ADR)
+- Local folder for ADRs are docs/adr
+- Follow the README.md when creating a new ADR
+- Use the template in README.md when creating a new ADR
+- Always start out with the Proposed status when creating a new ADR
+
 ## Features
 - Document ingestion (Markdown, text, extendable to PDF/HTML)
 - Local chunking and embedding pipeline (using ONNX)
 - Vector similarity search
 - Context-aware prompt construction
 - Grounded responses with citations
-- Clean layered architecture 
+- Clean-layered architecture 
 - Integration testing with Testcontainers
 - Configurable retrieval parameters (top-k, thresholds)
 
@@ -64,17 +70,18 @@ src/main/java/no/olsove/learn/ai/rag/spring_ai_rag_assistant
 - Always return citations
 - Never fabricate sources
 - Keep prompts deterministic
+- Ask me before implementing changes, i want to see the plan before you do it.
 
 ## Configuration
 Key parameters (configurable):
 - chunk size / overlap
 - top-k retrieval
 - similarity threshold
-- model provider
+- model provider (currently Ollama)
 - prompt templates
 
 ## Future Improvements
-- Hybrid search (keyword + vector)
+- Hybrid search (keyword and vector)
 - Re-ranking
 - Streaming responses (SSE)
 - Evaluation dataset (integrate with eval-lab project)
@@ -86,8 +93,12 @@ Most AI demos stop at calling an API.
 This project demonstrates:
 - real system design
 - data grounding
-- testable AI behavior
+- testable AI behaviour
 - production-oriented thinking
+
+## Language
+- Prefer British English.
+- Use programming language keywords do not change them .
 
 ## Definition of done
 - Tests pass

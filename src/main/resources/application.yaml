@@ -2,11 +2,11 @@ spring:
   application:
     name: spring-ai-rag-assistant
   ai:
-    openai:
-      api-key: ${OPENAI_API_KEY}
+    ollama:
+      base-url: "http://ollama:11434"
       chat:
         options:
-          model: gpt-4o
+          model: llama3
           temperature: 0.7
     embedding:
       transformer:

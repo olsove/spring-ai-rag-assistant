@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Slf4j
 @Service
@@ -22,10 +23,17 @@ public class ChatOrchestrator {
         this.retrievalService = retrievalService;
         this.chatClient = chatClientBuilder
                 .defaultSystem("""
-                        You are a helpful assistant providing answers based on the provided technical documentation.
-                        If you don't know the answer based on the context, say that you don't know.
-                        Always use the provided context to ground your answers.
-                        """)
+                You are a technical documentation assistant.
+                Answer only from the provided context.
+                If context is missing, reply: "I don't know based on the provided context."
+                Never invent or merge values across sections.
+                Never change numbers, units, durations, status codes, or names.
+                If the user asks to list steps, include all steps in order with original numbering.
+                If a query is broad or ambiguous (for example "limits" or "timeouts"), group the answer by relevant section and include all clearly relevant section matches from context.
+                Prefer section headings that most directly match the user query terms.
+                For queries containing "limit" or "limits", prioritise "Known Limits" and "Rate Limiting" sections before timeout or change-history entries.
+                Keep answers concise and factual.
+                """)
                 .build();
     }
 
@@ -34,8 +42,8 @@ public class ChatOrchestrator {
 
         List<Document> contextDocs = retrievalService.retrieve(query);
 
-        String context = contextDocs.stream()
-                .map(Document::getContent)
+        String context = IntStream.range(0, contextDocs.size())
+                .mapToObj(i -> formatContextChunk(contextDocs.get(i), i + 1))
                 .collect(Collectors.joining("\n\n"));
 
         String answer = chatClient.prompt()
@@ -44,6 +52,12 @@ public class ChatOrchestrator {
                                 
                                 Context:
                                 {context}
+                                
+                                Instructions:
+                                - Only use context.
+                                - If query terms can match multiple sections, answer with grouped sections rather than a single fragment.
+                                - If asked for steps, return every step in order.
+                                - Preserve exact numeric values and units.
                                 """)
                         .param("query", query)
                         .param("context", context))
@@ -56,5 +70,13 @@ public class ChatOrchestrator {
                 .toList();
 
         return new AnswerResponse(answer, citations);
+    }
+
+    private String formatContextChunk(Document document, int chunkNumber) {
+        String source = (String) document.getMetadata().getOrDefault("file_name", "Unknown Source");
+        return """
+                [Source: %s | Chunk: %d]
+                %s
+                """.formatted(source, chunkNumber, document.getContent());
     }
 }

@@ -84,4 +84,14 @@ class ChatOrchestratorTest {
         // Then: Citation should be 'Unknown Source'
         assertThat(response.getCitations()).containsExactly("Unknown Source");
     }
+
+    @Test
+    @DisplayName("Should configure system prompt with ambiguity handling instructions")
+    void shouldConfigureSystemPromptWithAmbiguityHandlingInstructions() {
+        verify(chatClientBuilder).defaultSystem(org.mockito.ArgumentMatchers.<String>argThat(prompt ->
+                prompt != null
+                        && prompt.contains("broad or ambiguous")
+                        && prompt.contains("group the answer by relevant section")
+        ));
+    }
 }

@@ -11,6 +11,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -30,9 +31,13 @@ public class IngestionService {
                 resource.getFilename(), chunkSize, chunkOverlap);
         TextReader textReader = new TextReader(resource);
         List<Document> documents = textReader.get();
+        String fileName = resource.getFilename() != null ? resource.getFilename() : "unknown-file";
+        List<Document> documentsWithMetadata = documents.stream()
+                .map(document -> new Document(document.getContent(), Map.of("file_name", fileName)))
+                .toList();
 
         TokenTextSplitter splitter = new TokenTextSplitter(chunkSize, chunkOverlap, 5, 10000, true);
-        List<Document> splitDocuments = splitter.apply(documents);
+        List<Document> splitDocuments = splitter.apply(documentsWithMetadata);
 
         log.info("Adding {} chunks to vector store", splitDocuments.size());
         vectorStore.add(splitDocuments);

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+</head>
+<body>
+<main>
+    <h1>Ask the RAG Assistant</h1>
+    <p><a th:href="@{/}" href="/">Back to Home</a></p>
+
+    <form id="chat-form">
+        <label for="query">Question:</label>
+        <input id="query" name="query" type="text" required>
+        <button type="submit">Ask</button>
+    </form>
+
+    <section aria-live="polite">
+        <h2>Answer</h2>
+        <p id="answer"></p>
+        <h3>Citations</h3>
+        <ul id="citations"></ul>
+        <p id="error" style="color: #b00020;"></p>
+    </section>
+</main>
+
+<script>
+    const form = document.getElementById("chat-form");
+    const queryInput = document.getElementById("query");
+    const answerEl = document.getElementById("answer");
+    const citationsEl = document.getElementById("citations");
+    const errorEl = document.getElementById("error");
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        answerEl.textContent = "";
+        citationsEl.innerHTML = "";
+        errorEl.textContent = "";
+
+        const query = queryInput.value.trim();
+        if (!query) {
+            errorEl.textContent = "Please enter a question.";
+            return;
+        }
+
+        try {
+            const response = await fetch("/api/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ query })
+            });
+
+            if (!response.ok) {
+                errorEl.textContent = "Request failed with status " + response.status + ".";
+                return;
+            }
+
+            const payload = await response.json();
+            answerEl.textContent = payload.answer || "";
+
+            const citations = Array.isArray(payload.citations) ? payload.citations : [];
+            citations.forEach((citation) => {
+                const item = document.createElement("li");
+                item.textContent = citation;
+                citationsEl.appendChild(item);
+            });
+        } catch (error) {
+            errorEl.textContent = "Unable to reach /api/chat. Verify the application is running.";
+        }
+    });
+</script>
+</body>
+</html>

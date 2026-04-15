@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring AI RAG Assistant</title>
+</head>
+<body>
+<main>
+    <h1>Spring AI RAG Assistant</h1>
+    <p>Select a file to ingest, then ask a question.</p>
+
+    <form id="ingest-and-chat-form">
+        <p>
+            <label for="file">Document file:</label>
+            <input id="file" name="file" type="file" required>
+        </p>
+
+        <p>
+            <label for="preset-question">Preset question:</label>
+            <select id="preset-question" name="preset-question">
+                <option value="">Select a smoke-test question</option>
+                <option value="What are the default and burst rate limits in Atlas Gateway 2.4?">What are the default and burst rate limits in Atlas Gateway 2.4?</option>
+                <option value="Which endpoint should I call for service health, and what is the management port?">Which endpoint should I call for service health, and what is the management port?</option>
+                <option value="What status codes are retryable and how many retries are allowed?">What status codes are retryable and how many retries are allowed?</option>
+                <option value="Which scope is required for refund payments and what happens if it is missing?">Which scope is required for refund payments and what happens if it is missing?</option>
+                <option value="List the incident response steps when the circuit breaker stays open.">List the incident response steps when the circuit breaker stays open.</option>
+                <option value="What does error code AGW-3002 mean and what action should support take?">What does error code AGW-3002 mean and what action should support take?</option>
+            </select>
+        </p>
+
+        <p>
+            <label for="query">Question:</label><br>
+            <textarea id="query" name="query" rows="10" cols="100" required></textarea>
+        </p>
+
+        <button id="submit-button" type="submit">Ingest and Ask</button>
+    </form>
+
+    <section aria-live="polite">
+        <h2>Status</h2>
+        <p id="status"></p>
+        <p id="error" style="color: #b00020;"></p>
+    </section>
+
+    <section aria-live="polite">
+        <h2>Answer</h2>
+        <p id="answer"></p>
+        <h3>Citations</h3>
+        <ul id="citations"></ul>
+    </section>
+</main>
+
+<script>
+    const form = document.getElementById("ingest-and-chat-form");
+    const fileInput = document.getElementById("file");
+    const presetSelect = document.getElementById("preset-question");
+    const queryInput = document.getElementById("query");
+    const statusEl = document.getElementById("status");
+    const errorEl = document.getElementById("error");
+    const answerEl = document.getElementById("answer");
+    const citationsEl = document.getElementById("citations");
+    const submitButton = document.getElementById("submit-button");
+
+    presetSelect.addEventListener("change", () => {
+        if (presetSelect.value) {
+            queryInput.value = presetSelect.value;
+        }
+    });
+
+    form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        statusEl.textContent = "";
+        errorEl.textContent = "";
+        answerEl.textContent = "";
+        citationsEl.innerHTML = "";
+
+        const file = fileInput.files[0];
+        const query = queryInput.value.trim();
+
+        if (!file) {
+            errorEl.textContent = "Please select a file to ingest.";
+            return;
+        }
+        if (!query) {
+            errorEl.textContent = "Please enter a question.";
+            return;
+        }
+
+        submitButton.disabled = true;
+
+        try {
+            statusEl.textContent = "Ingesting file...";
+            const ingestFormData = new FormData();
+            ingestFormData.append("file", file);
+
+            const ingestResponse = await fetch("/api/chat/ingest", {
+                method: "POST",
+                body: ingestFormData
+            });
+
+            if (!ingestResponse.ok) {
+                errorEl.textContent = "Ingestion failed with status " + ingestResponse.status + ".";
+                return;
+            }
+
+            statusEl.textContent = "Ingestion successful. Asking question...";
+
+            const chatResponse = await fetch("/api/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ query })
+            });
+
+            if (!chatResponse.ok) {
+                errorEl.textContent = "Chat request failed with status " + chatResponse.status + ".";
+                return;
+            }
+
+            const payload = await chatResponse.json();
+            answerEl.textContent = payload.answer || "";
+
+            const citations = Array.isArray(payload.citations) ? payload.citations : [];
+            citations.forEach((citation) => {
+                const item = document.createElement("li");
+                item.textContent = citation;
+                citationsEl.appendChild(item);
+            });
+
+            statusEl.textContent = "Completed successfully.";
+        } catch (error) {
+            errorEl.textContent = "Unable to reach the API. Verify the application is running.";
+        } finally {
+            submitButton.disabled = false;
+        }
+    });
+</script>
+</body>
+</html>

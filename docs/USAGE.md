@@ -4,22 +4,39 @@
 The Spring AI RAG Assistant is a technical documentation assistant that uses Retrieval-Augmented Generation (RAG) to provide grounded answers based on ingested documents.
 
 ## Prerequisites
-- **Java 21** or later.
-- **OpenAI API Key**: Set the `OPENAI_API_KEY` environment variable (required for Chat, but not for Embeddings).
+- **Java 21 (Temurin)**.
+- **Docker & Docker Compose**: To run the local AI stack.
+- **NVIDIA Container Toolkit**: If you want to use your RTX 2070 SUPER.
+- **Ollama**: Handled by Docker, but you need to pull the model (see below).
 - **Gradle**: Use the provided `./gradlew` wrapper.
 
-## Local Embeddings
-This application uses **local ONNX embeddings** (all-MiniLM-L6-v2) by default. This means:
-- No tokens are used for document ingestion.
-- Document chunks are converted to vectors locally on your machine.
-- Privacy is improved as your document content is not sent to OpenAI for embedding.
-- Only the final chat query and the relevant context are sent to OpenAI for answer generation.
+## Local AI Stack (Ollama + GPU)
+This application is configured for a **fully local pipeline**:
+- **Local Embeddings**: Uses ONNX (all-MiniLM-L6-v2) for on-machine vector generation.
+- **Local LLM**: Uses Ollama (llama3) for chat generation, with NVIDIA GPU acceleration.
+- **Privacy**: No data is sent to external cloud providers.
 
 ## Running the Application
-Start the application using:
+
+### 1. Build the Application
+First, build the JAR file:
 ```bash
-./gradlew bootRun
+./gradlew build -x test
 ```
+
+### 2. Start the Stack
+Launch the Ollama and Application containers:
+```bash
+docker compose up -d
+```
+
+### 3. Pull the Model
+On the first run, you must download the `llama3` model into the Ollama container:
+```bash
+docker exec -it ollama ollama run llama3
+```
+*(Once the model starts up and you see the prompt, you can type `/exit` to return to your shell.)*
+
 The API will be available at `http://localhost:8080/api/chat`.
 
 ## Core Features
